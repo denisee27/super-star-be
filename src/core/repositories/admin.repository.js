@@ -25,7 +25,7 @@ export function makeAdminRepository({ prisma }) {
     return prisma.refreshToken.deleteMany({ where: { token } });
   }
 
-  async function deleteAllRefreshTokensByAdmin(adminId) {
+async function deleteAllRefreshTokensByAdmin(adminId) {
     return prisma.refreshToken.deleteMany({ where: { adminId } });
   }
 

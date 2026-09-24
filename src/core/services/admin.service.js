@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from "uuid"; // used by login
 import { signAccessToken } from "../../infra/security/jwt.js";
 import { UnauthorizedError, NotFoundError } from "../errors/httpErrors.js";
 
@@ -37,19 +37,13 @@ export function makeAdminService({ adminRepository, logger }) {
       throw new UnauthorizedError("Refresh token expired");
     }
 
-    await adminRepository.deleteRefreshToken(refreshToken);
-
     const newAccessToken = signAccessToken({ sub: record.admin.id, email: record.admin.email });
-    const newRefreshToken = uuidv4();
-    const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
 
-    await adminRepository.createRefreshToken({
-      token: newRefreshToken,
-      adminId: record.admin.id,
-      expiresAt,
-    });
-
-    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+    // No rotation — refresh token stays valid until expiry (7 days).
+    // Safe because the token lives in an httpOnly cookie (XSS cannot read it)
+    // and the transport is HTTPS (cannot be intercepted).
+    // Rotation only helps when tokens can be stolen via JS (e.g. localStorage).
+    return { accessToken: newAccessToken, refreshToken };
   }
 
   async function logout(refreshToken) {

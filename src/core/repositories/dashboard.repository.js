@@ -15,10 +15,16 @@ export function makeDashboardRepository({ prisma }) {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const dateWhere = buildDateWhere(startDate, endDate) ?? {};
+    const hasFilter = !!(startDate || endDate);
 
     const [total, thisMonth, lastMonth, byStatus, byCategory] = await Promise.all([
       prisma.inquiry.count({ where: dateWhere }),
-      prisma.inquiry.count({ where: { ...dateWhere, createdAt: { ...dateWhere.createdAt, gte: monthStart } } }),
+      // When filter active: thisMonth = same as total (whole filtered range)
+      // When no filter: count only current calendar month
+      hasFilter
+        ? prisma.inquiry.count({ where: dateWhere })
+        : prisma.inquiry.count({ where: { createdAt: { gte: monthStart } } }),
+      // lastMonth always uses calendar month (for growth comparison without filter)
       prisma.inquiry.count({ where: { createdAt: { gte: lastMonthStart, lt: monthStart } } }),
       prisma.inquiry.groupBy({ by: ["status"], _count: { id: true }, where: dateWhere }),
       prisma.inquiry.groupBy({ by: ["category"], _count: { id: true }, where: dateWhere }),

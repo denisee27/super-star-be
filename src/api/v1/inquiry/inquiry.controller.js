@@ -1,4 +1,4 @@
-export function makeInquiryController({ inquiryService }) {
+export function makeInquiryController({ inquiryService, adminLogRepository }) {
   async function submitMcnInquiry(req, res, next) {
     try {
       const { platform, ...rest } = req.body;
@@ -31,11 +31,7 @@ export function makeInquiryController({ inquiryService }) {
     try {
       const { category, status, search, startDate, endDate, page, limit } = req.query;
       const result = await inquiryService.getAllInquiries({
-        category,
-        status,
-        search,
-        startDate,
-        endDate,
+        category, status, search, startDate, endDate,
         page: page ? parseInt(page) : 1,
         limit: limit ? parseInt(limit) : 10,
       });
@@ -58,6 +54,19 @@ export function makeInquiryController({ inquiryService }) {
     try {
       const { status, notes } = req.body;
       const inquiry = await inquiryService.updateInquiryStatus(req.params.id, status, notes);
+
+      if (req.admin?.id) {
+        const label = inquiry.fullName || inquiry.brandName || inquiry.id;
+        adminLogRepository.create({
+          adminId: req.admin.id,
+          action: "UPDATE",
+          resource: "inquiry",
+          resourceId: inquiry.id,
+          detail: `Update inquiry "${label}" → ${status}${notes !== undefined ? " (catatan diperbarui)" : ""}`,
+          ipAddress: req.ip,
+        }).catch(() => {});
+      }
+
       res.json({ success: true, data: inquiry });
     } catch (error) {
       next(error);

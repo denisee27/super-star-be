@@ -9,6 +9,11 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default("15m"),
   CORS_ORIGIN: z.string().default("http://localhost:5173"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  SMTP_HOST: z.string().default("smtp.gmail.com"),
+  SMTP_PORT: z.coerce.number().default(587),
+  SMTP_USER: z.string().default(""),
+  SMTP_PASS: z.string().default(""),
+  SMTP_FROM: z.string().default("noreply@superstar.agency"),
 });
 
 const parsed = envSchema.safeParse(process.env);

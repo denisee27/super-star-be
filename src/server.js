@@ -12,9 +12,11 @@ import makeAdminRouter from "./api/v1/admin/admin.router.js";
 import makeExportRouter from "./api/v1/export/export.router.js";
 import makeDashboardRouter from "./api/v1/dashboard/dashboard.router.js";
 import makeSettingRouter from "./api/v1/setting/setting.router.js";
+import makeOtpRouter from "./api/v1/otp/otp.router.js";
 
 const app = express();
 
+app.set("trust proxy", 1); // trust Vercel/reverse proxy for req.ip
 app.use(helmet());
 app.use(cors({
   origin: env.CORS_ORIGIN,
@@ -27,17 +29,18 @@ app.use(cookieParser());
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 app.use("/api", limiter);
 
-const { inquiryController, adminController, exportController, dashboardController, settingController } = container.cradle;
+const { inquiryController, adminController, exportController, dashboardController, settingController, otpController } = container.cradle;
 
 app.use("/api/v1/inquiry", makeInquiryRouter({ inquiryController }));
 app.use("/api/v1/admin", makeAdminRouter({ adminController }));
 app.use("/api/v1/export", makeExportRouter({ exportController }));
 app.use("/api/v1/dashboard", makeDashboardRouter({ dashboardController }));
 app.use("/api/v1/settings", makeSettingRouter({ settingController }));
+app.use("/api/v1/otp", makeOtpRouter({ otpController }));
 
-app.get("/health", (req, res) => res.json({ status: "ok" }));
+app.get("/health", (_req, res) => res.json({ status: "ok" }));
 
-app.use((req, res) => res.status(404).json({ success: false, error: "Route not found" }));
+app.use((_req, res) => res.status(404).json({ success: false, error: "Route not found" }));
 app.use(errorHandler);
 
 app.listen(env.PORT, () => {

@@ -3,13 +3,13 @@ const STATUS_LABEL = { NEW: "Baru", CONTACTED: "Dihubungi", QUALIFIED: "Qualifie
 const PLATFORM_LABEL = { TIKTOK_SHOP: "TikTok Shop", SHOPEE: "Shopee" };
 
 export function makeDashboardService({ dashboardRepository }) {
-  async function getDashboardStats() {
+  async function getDashboardStats({ startDate, endDate } = {}) {
     const [overview, trend, topDomicili, byPlatform, byGmvRange] = await Promise.all([
-      dashboardRepository.getOverview(),
-      dashboardRepository.getTrend(),
-      dashboardRepository.getTopDomicili(),
-      dashboardRepository.getByPlatform(),
-      dashboardRepository.getByGmvRange(),
+      dashboardRepository.getOverview(startDate, endDate),
+      dashboardRepository.getTrend(startDate, endDate),
+      dashboardRepository.getTopDomicili(startDate, endDate),
+      dashboardRepository.getByPlatform(startDate, endDate),
+      dashboardRepository.getByGmvRange(startDate, endDate),
     ]);
 
     const qualified = overview.byStatus.find((s) => s.status === "QUALIFIED")?._count.id ?? 0;

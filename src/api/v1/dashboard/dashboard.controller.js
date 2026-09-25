@@ -1,7 +1,8 @@
 export function makeDashboardController({ dashboardService }) {
   async function getStats(req, res, next) {
     try {
-      const stats = await dashboardService.getDashboardStats();
+      const { startDate, endDate } = req.query;
+      const stats = await dashboardService.getDashboardStats({ startDate, endDate });
       res.json({ success: true, data: stats });
     } catch (error) {
       next(error);

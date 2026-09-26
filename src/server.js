@@ -18,8 +18,14 @@ const app = express();
 
 app.set("trust proxy", 1); // trust Vercel/reverse proxy for req.ip
 app.use(helmet());
+const allowedOrigins = env.CORS_ORIGIN.split(",").map((o) => o.trim());
 app.use(cors({
-  origin: env.CORS_ORIGIN,
+  origin: (origin, callback) => {
+    // allow requests with no origin (curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
   credentials: true,
 }));
 app.use(express.json({ limit: "10mb" }));

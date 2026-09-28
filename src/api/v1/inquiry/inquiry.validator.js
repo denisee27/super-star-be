@@ -16,6 +16,7 @@ export const submitMcnSchema = z.object({
     gmvRange: z.enum(GMV_RANGES, { errorMap: () => ({ message: "Pilih range GMV" }) }),
     followersRange: z.enum(FOLLOWER_RANGES, { errorMap: () => ({ message: "Pilih range followers" }) }),
     platform: z.enum(MCN_PLATFORMS, { errorMap: () => ({ message: "Pilih platform" }) }),
+    hasPreviousMcn: z.enum(["SUDAH", "BELUM"], { errorMap: () => ({ message: "Pilih salah satu" }) }),
   }),
 });
 

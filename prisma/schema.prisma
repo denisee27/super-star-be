@@ -20,6 +20,7 @@ model Inquiry {
   domicile        String?
   gmvRange        String?         @map("gmv_range")
   followersRange  String?         @map("followers_range")
+  hasPreviousMcn  String?         @map("has_previous_mcn")
   brandName       String?         @map("brand_name")
   storeLink       String?         @map("store_link")
   productCategory String?         @map("product_category")

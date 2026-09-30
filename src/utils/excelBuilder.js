@@ -3,7 +3,7 @@ import ExcelJS from "exceljs";
 const HEADER_FILL = { type: "pattern", pattern: "solid", fgColor: { argb: "FF0041FB" } };
 const HEADER_FONT = { color: { argb: "FFFFFFFF" }, bold: true };
 
-const CATEGORY_LABEL = { MCN_AGENCY: "MCN Agency", PASUKAN_AFFILIATE: "Pasukan Affiliate", BRAND_SELLER: "Brand/Seller" };
+const CATEGORY_LABEL = { MCN_AGENCY: "MCN Agency", PASUKAN_AFFILIATE: "Pasukan Affiliate", BRAND_SELLER: "Brand/Seller", EVENT: "Event" };
 const STATUS_LABEL = { NEW: "Baru", CONTACTED: "Dihubungi", QUALIFIED: "Qualified", REJECTED: "Ditolak" };
 
 function styleHeader(row) {
@@ -25,6 +25,7 @@ export async function buildInquiryExcel(inquiries) {
   const mcnData   = inquiries.filter((i) => i.category === "MCN_AGENCY");
   const pasData   = inquiries.filter((i) => i.category === "PASUKAN_AFFILIATE");
   const brandData = inquiries.filter((i) => i.category === "BRAND_SELLER");
+  const eventData = inquiries.filter((i) => i.category === "EVENT");
 
   // ── Sheet 1: Semua Data (aktif pertama kali dibuka) ──────────────────────
   const allSheet = workbook.addWorksheet("Semua Data");
@@ -51,7 +52,7 @@ export async function buildInquiryExcel(inquiries) {
       item.fullName ?? item.brandName ?? "",
       item.email ?? "",
       item.phone ?? item.username ?? item.picContact ?? "",
-      item.domicile ?? "",
+      (item.province && item.regency) ? `${item.province} — ${item.regency}` : (item.regency ?? ""),
       item.platform ?? "",
       item.gmvRange ?? "",
       STATUS_LABEL[item.status] ?? item.status,
@@ -86,7 +87,7 @@ export async function buildInquiryExcel(inquiries) {
       item.email ?? "",
       item.phone ?? "",
       item.accountLink ?? "",
-      item.domicile ?? "",
+      (item.province && item.regency) ? `${item.province} — ${item.regency}` : (item.regency ?? ""),
       item.gmvRange ?? "",
       item.followersRange ?? "",
       STATUS_LABEL[item.status] ?? item.status,
@@ -97,15 +98,16 @@ export async function buildInquiryExcel(inquiries) {
   // ── Sheet 3: Pasukan Affiliate ────────────────────────────────────────────
   const pasSheet = workbook.addWorksheet("Pasukan Affiliate");
   pasSheet.columns = [
-    { header: "No",        width: 5  },
-    { header: "Tanggal",   width: 18 },
-    { header: "Nama",      width: 25 },
-    { header: "Email",     width: 28 },
-    { header: "Username",  width: 22 },
-    { header: "GMV/Bulan", width: 18 },
-    { header: "Domisili",  width: 18 },
-    { header: "Status",    width: 14 },
-    { header: "Catatan",   width: 30 },
+    { header: "No",              width: 5  },
+    { header: "Tanggal",         width: 18 },
+    { header: "Nama",            width: 25 },
+    { header: "Email",           width: 28 },
+    { header: "Username TikTok", width: 22 },
+    { header: "Username Shopee", width: 22 },
+    { header: "GMV/Bulan",       width: 18 },
+    { header: "Domisili",        width: 18 },
+    { header: "Status",          width: 14 },
+    { header: "Catatan",         width: 30 },
   ];
   styleHeader(pasSheet.getRow(1));
   pasSheet.views = [{ state: "frozen", ySplit: 1 }];
@@ -116,8 +118,9 @@ export async function buildInquiryExcel(inquiries) {
       item.fullName ?? "",
       item.email ?? "",
       item.username ?? "",
+      item.usernameShopee ?? "",
       item.gmvRange ?? "",
-      item.domicile ?? "",
+      (item.province && item.regency) ? `${item.province} — ${item.regency}` : (item.regency ?? ""),
       STATUS_LABEL[item.status] ?? item.status,
       item.notes ?? "",
     ]);
@@ -151,6 +154,41 @@ export async function buildInquiryExcel(inquiries) {
       item.picName ?? "",
       item.picRole ?? "",
       item.picContact ?? "",
+      STATUS_LABEL[item.status] ?? item.status,
+      item.notes ?? "",
+    ]);
+  });
+
+  // ── Sheet 5: Event ───────────────────────────────────────────────────────
+  const eventSheet = workbook.addWorksheet("Event");
+  eventSheet.columns = [
+    { header: "No",           width: 5  },
+    { header: "Tanggal",      width: 18 },
+    { header: "Nama Event",   width: 25 },
+    { header: "Nama Lengkap", width: 25 },
+    { header: "Email",        width: 28 },
+    { header: "No HP",        width: 16 },
+    { header: "Link Akun",    width: 30 },
+    { header: "Domisili",     width: 18 },
+    { header: "GMV/Bulan",    width: 18 },
+    { header: "Followers",    width: 18 },
+    { header: "Status",       width: 14 },
+    { header: "Catatan",      width: 30 },
+  ];
+  styleHeader(eventSheet.getRow(1));
+  eventSheet.views = [{ state: "frozen", ySplit: 1 }];
+  eventData.forEach((item, idx) => {
+    eventSheet.addRow([
+      idx + 1,
+      formatDate(item.createdAt),
+      item.eventName ?? "",
+      item.fullName ?? "",
+      item.email ?? "",
+      item.phone ?? "",
+      item.accountLink ?? "",
+      (item.province && item.regency) ? `${item.province} — ${item.regency}` : (item.regency ?? ""),
+      item.gmvRange ?? "",
+      item.followersRange ?? "",
       STATUS_LABEL[item.status] ?? item.status,
       item.notes ?? "",
     ]);

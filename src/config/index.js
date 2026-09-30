@@ -14,6 +14,9 @@ const envSchema = z.object({
   SMTP_USER: z.string().default(""),
   SMTP_PASS: z.string().default(""),
   SMTP_FROM: z.string().default("noreply@superstar.agency"),
+  BOTCAKE_TOKEN: z.string().min(1),
+  BOTCAKE_PAGE_ID: z.string().startsWith("waba_"),
+  BOTCAKE_FLOW_ID: z.coerce.number().int().positive(),
 });
 
 const parsed = envSchema.safeParse(process.env);

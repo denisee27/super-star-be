@@ -1,4 +1,4 @@
-export function makeInquiryController({ inquiryService, adminLogRepository }) {
+export function makeInquiryController({ inquiryService, eventService, adminLogRepository }) {
   async function submitMcnInquiry(req, res, next) {
     try {
       const { platform, ...rest } = req.body;
@@ -27,11 +27,28 @@ export function makeInquiryController({ inquiryService, adminLogRepository }) {
     }
   }
 
+  async function submitEventInquiry(req, res, next) {
+    try {
+      const { eventId, ...rest } = req.body;
+      const event = await eventService.getEventById(eventId);
+
+      const now = new Date();
+      if (!event.isActive || event.startsAt > now || event.expiresAt <= now) {
+        return res.status(400).json({ success: false, error: "Event ini sudah tidak aktif atau sudah berakhir." });
+      }
+
+      const inquiry = await inquiryService.submitInquiry("EVENT", { eventId, eventName: event.name, ...rest });
+      res.status(201).json({ success: true, data: inquiry });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async function getAllInquiries(req, res, next) {
     try {
-      const { category, status, search, startDate, endDate, page, limit } = req.query;
+      const { category, status, search, startDate, endDate, eventId, page, limit } = req.query;
       const result = await inquiryService.getAllInquiries({
-        category, status, search, startDate, endDate,
+        category, status, search, startDate, endDate, eventId,
         page: page ? parseInt(page) : 1,
         limit: limit ? parseInt(limit) : 10,
       });
@@ -73,5 +90,5 @@ export function makeInquiryController({ inquiryService, adminLogRepository }) {
     }
   }
 
-  return { submitMcnInquiry, submitPasInquiry, submitBrandInquiry, getAllInquiries, getInquiryById, updateInquiry };
+  return { submitMcnInquiry, submitPasInquiry, submitBrandInquiry, submitEventInquiry, getAllInquiries, getInquiryById, updateInquiry };
 }

@@ -11,8 +11,12 @@
     "build": "prisma migrate deploy && prisma generate",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "seed": "node prisma/seed.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:prod": "prisma migrate deploy",
+    "db:seed": "node prisma/seed.js",
+    "db:seed:regions": "node prisma/seed-regions.js",
+    "db:studio": "prisma studio"
   },
   "keywords": [],
   "author": "",

@@ -1,4 +1,4 @@
-const CATEGORY_LABEL = { MCN_AGENCY: "MCN Agency", PASUKAN_AFFILIATE: "Pasukan Affiliate", BRAND_SELLER: "Brand/Seller" };
+const CATEGORY_LABEL = { MCN_AGENCY: "MCN Agency", PASUKAN_AFFILIATE: "Pasukan Affiliate", BRAND_SELLER: "Brand/Seller", EVENT: "Event" };
 const STATUS_LABEL = { NEW: "Baru", CONTACTED: "Dihubungi", QUALIFIED: "Qualified", REJECTED: "Ditolak" };
 const PLATFORM_LABEL = { TIKTOK_SHOP: "TikTok Shop", SHOPEE: "Shopee" };
 

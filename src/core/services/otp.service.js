@@ -1,5 +1,4 @@
-import { sendEmail } from "../../infra/email/emailService.js";
-import { otpEmailHtml } from "../../infra/email/templates/otpTemplate.js";
+import { sendWhatsappOtp } from "../../infra/whatsapp/botcakeService.js";
 import { ValidationError } from "../errors/httpErrors.js";
 
 const OTP_TTL_MS = 5 * 60 * 1000;   // 5 minutes
@@ -26,12 +25,12 @@ function generateCode() {
 }
 
 export function makeOtpService({ otpRepository, logger }) {
-  async function sendOtp(email) {
-    const sendCount = await otpRepository.countRecentByEmail(email, RECENT_WINDOW_MS);
+  async function sendOtp(phone) {
+    const sendCount = await otpRepository.countRecentByPhone(phone, RECENT_WINDOW_MS);
     const cooldownMs = getCooldownMs(sendCount);
 
     if (cooldownMs > 0) {
-      const latest = await otpRepository.findLatestByEmail(email);
+      const latest = await otpRepository.findLatestByPhone(phone);
       if (latest) {
         const age = Date.now() - new Date(latest.createdAt).getTime();
         const remaining = cooldownMs - age;
@@ -43,24 +42,20 @@ export function makeOtpService({ otpRepository, logger }) {
 
     const code = generateCode();
     const expiresAt = new Date(Date.now() + OTP_TTL_MS);
-    await otpRepository.create({ email, code, expiresAt });
+    await otpRepository.create({ phone, code, expiresAt });
 
     try {
-      await sendEmail({
-        to: email,
-        subject: "Kode Verifikasi Email — Superstar Agency",
-        html: otpEmailHtml(code),
-      });
+      await sendWhatsappOtp(phone, code);
     } catch (err) {
-      logger.error({ email, err: err.message }, "Failed to send OTP email");
-      throw new ValidationError("Gagal mengirim email. Pastikan alamat email benar dan coba lagi.");
+      logger.error({ phone, err: err.message }, "Failed to send OTP via WhatsApp");
+      throw new ValidationError("Gagal mengirim OTP ke WhatsApp. Pastikan nomor HP benar dan coba lagi.");
     }
 
-    logger.info({ email }, "OTP sent");
+    logger.info({ phone }, "OTP sent via WhatsApp");
   }
 
-  async function verifyOtp(email, code) {
-    const record = await otpRepository.findLatestByEmail(email);
+  async function verifyOtp(phone, code) {
+    const record = await otpRepository.findLatestByPhone(phone);
 
     if (!record) throw new ValidationError("Kode tidak ditemukan. Minta kode baru.");
     if (record.usedAt) throw new ValidationError("Kode sudah digunakan. Minta kode baru.");
@@ -74,7 +69,7 @@ export function makeOtpService({ otpRepository, logger }) {
     }
 
     await otpRepository.markUsed(record.id);
-    logger.info({ email }, "OTP verified");
+    logger.info({ phone }, "OTP verified");
   }
 
   return { sendOtp, verifyOtp };

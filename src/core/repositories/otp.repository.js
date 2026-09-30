@@ -1,11 +1,11 @@
 export function makeOtpRepository({ prisma }) {
-  async function create({ email, code, expiresAt }) {
-    return prisma.otpCode.create({ data: { email, code, expiresAt } });
+  async function create({ phone, code, expiresAt }) {
+    return prisma.otpCode.create({ data: { phone, code, expiresAt } });
   }
 
-  async function findLatestByEmail(email) {
+  async function findLatestByPhone(phone) {
     return prisma.otpCode.findFirst({
-      where: { email },
+      where: { phone },
       orderBy: { createdAt: "desc" },
     });
   }
@@ -22,14 +22,14 @@ export function makeOtpRepository({ prisma }) {
     return prisma.otpCode.update({ where: { id }, data: { attempts: { increment: 1 } } });
   }
 
-  async function countRecentByEmail(email, windowMs) {
+  async function countRecentByPhone(phone, windowMs) {
     const since = new Date(Date.now() - windowMs);
-    return prisma.otpCode.count({ where: { email, createdAt: { gte: since } } });
+    return prisma.otpCode.count({ where: { phone, createdAt: { gte: since } } });
   }
 
   async function deleteExpired() {
     return prisma.otpCode.deleteMany({ where: { expiresAt: { lt: new Date() } } });
   }
 
-  return { create, findLatestByEmail, findById, markUsed, incrementAttempts, countRecentByEmail, deleteExpired };
+  return { create, findLatestByPhone, findById, markUsed, incrementAttempts, countRecentByPhone, deleteExpired };
 }

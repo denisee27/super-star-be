@@ -49,13 +49,13 @@ export function makeDashboardRepository({ prisma }) {
   async function getTopDomicili(startDate, endDate) {
     const dateWhere = buildDateWhere(startDate, endDate) ?? {};
     const rows = await prisma.inquiry.groupBy({
-      by: ["domicile"],
+      by: ["regency"],
       _count: { id: true },
-      where: { ...dateWhere, domicile: { not: null } },
+      where: { ...dateWhere, regency: { not: null } },
       orderBy: { _count: { id: "desc" } },
       take: 8,
     });
-    return rows.map((r) => ({ domicile: r.domicile, count: r._count.id }));
+    return rows.map((r) => ({ domicile: r.regency, count: r._count.id }));
   }
 
   async function getByPlatform(startDate, endDate) {

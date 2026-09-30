@@ -20,6 +20,12 @@ import { makeSettingController } from "./api/v1/setting/setting.controller.js";
 import { makeOtpRepository } from "./core/repositories/otp.repository.js";
 import { makeOtpService } from "./core/services/otp.service.js";
 import { makeOtpController } from "./api/v1/otp/otp.controller.js";
+import { makeEventRepository } from "./core/repositories/event.repository.js";
+import { makeEventService } from "./core/services/event.service.js";
+import { makeEventController } from "./api/v1/event/event.controller.js";
+import { makeRegionRepository } from "./core/repositories/region.repository.js";
+import { makeRegionService } from "./core/services/region.service.js";
+import { makeRegionController } from "./api/v1/region/region.controller.js";
 
 const container = createContainer();
 
@@ -34,9 +40,13 @@ container.register({
   dashboardRepository: asFunction(makeDashboardRepository).singleton(),
   settingRepository: asFunction(makeSettingRepository).singleton(),
   otpRepository: asFunction(makeOtpRepository).singleton(),
+  eventRepository: asFunction(makeEventRepository).singleton(),
+  regionRepository: asFunction(makeRegionRepository).singleton(),
 
   // Services
   otpService: asFunction(makeOtpService).singleton(),
+  eventService: asFunction(makeEventService).singleton(),
+  regionService: asFunction(makeRegionService).singleton(),
   inquiryService: asFunction(makeInquiryService).singleton(),
   adminService: asFunction(makeAdminService).singleton(),
   adminLogService: asFunction(makeAdminLogService).singleton(),
@@ -51,6 +61,8 @@ container.register({
   dashboardController: asFunction(makeDashboardController).singleton(),
   settingController: asFunction(makeSettingController).singleton(),
   otpController: asFunction(makeOtpController).singleton(),
+  eventController: asFunction(makeEventController).singleton(),
+  regionController: asFunction(makeRegionController).singleton(),
 });
 
 export default container;

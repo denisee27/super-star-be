@@ -64,7 +64,8 @@ function ctaBtn(href, label, color = "#25D366") {
   return `<a href="${href}" target="_blank" style="display:inline-block;background:${color};color:#ffffff;font-size:14px;font-weight:600;text-decoration:none;padding:13px 28px;border-radius:8px;">${label}</a>`;
 }
 
-export function mcnNotificationHtml({ fullName, email, platform, domicile, gmvRange, followersRange }) {
+export function mcnNotificationHtml({ fullName, email, platform, province, regency, gmvRange, followersRange }) {
+  const domicile = (province && regency) ? `${province} — ${regency}` : (regency ?? "");
   const platformLabel = PLATFORM_LABEL[platform] ?? platform;
   const body = `
     <p style="margin:0 0 6px;font-size:22px;font-weight:700;color:#0A0A0A;">Pendaftaran Kamu Diterima</p>
@@ -93,7 +94,8 @@ export function mcnNotificationHtml({ fullName, email, platform, domicile, gmvRa
   return baseLayout({ preheader: `Pendaftaran MCN ${platformLabel} kamu telah diterima.`, body });
 }
 
-export function pasNotificationHtml({ fullName, email, username, domicile, gmvRange, groupLink }) {
+export function pasNotificationHtml({ fullName, email, username, province, regency, gmvRange, groupLink }) {
+  const domicile = (province && regency) ? `${province} — ${regency}` : (regency ?? "");
   const body = `
     <p style="margin:0 0 6px;font-size:22px;font-weight:700;color:#0A0A0A;">Kamu Masuk Radar Kami!</p>
     <p style="margin:0 0 28px;font-size:15px;color:#474747;line-height:1.7;">

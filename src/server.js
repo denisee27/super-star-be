@@ -13,6 +13,8 @@ import makeExportRouter from "./api/v1/export/export.router.js";
 import makeDashboardRouter from "./api/v1/dashboard/dashboard.router.js";
 import makeSettingRouter from "./api/v1/setting/setting.router.js";
 import makeOtpRouter from "./api/v1/otp/otp.router.js";
+import makeEventRouter from "./api/v1/event/event.router.js";
+import makeRegionRouter from "./api/v1/region/region.router.js";
 
 const app = express();
 
@@ -35,7 +37,7 @@ app.use(cookieParser());
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 app.use("/api", limiter);
 
-const { inquiryController, adminController, exportController, dashboardController, settingController, otpController } = container.cradle;
+const { inquiryController, adminController, exportController, dashboardController, settingController, otpController, eventController, regionController } = container.cradle;
 
 app.use("/api/v1/inquiry", makeInquiryRouter({ inquiryController }));
 app.use("/api/v1/admin", makeAdminRouter({ adminController }));
@@ -43,6 +45,8 @@ app.use("/api/v1/export", makeExportRouter({ exportController }));
 app.use("/api/v1/dashboard", makeDashboardRouter({ dashboardController }));
 app.use("/api/v1/settings", makeSettingRouter({ settingController }));
 app.use("/api/v1/otp", makeOtpRouter({ otpController }));
+app.use("/api/v1/events", makeEventRouter({ eventController }));
+app.use("/api/v1/regions", makeRegionRouter({ regionController }));
 
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
 

@@ -6,15 +6,15 @@ const prisma = new PrismaClient();
 async function main() {
   const hashedPassword = await bcrypt.hash("admin123#", 10);
   await prisma.admin.upsert({
-    where: { email: "admin@superstar.com" },
+    where: { email: "info@superstaragency.id" },
     update: {},
     create: {
-      email: "admin@superstar.com",
+      email: "info@superstaragency.id",
       password: hashedPassword,
       name: "Admin Superstar",
     },
   });
-  console.log("Seed completed: admin@superstar.com / admin123#");
+  console.log("Seed completed: info@superstaragency.id / admin123#");
 
   // Upsert default app settings
   await prisma.appSetting.upsert({

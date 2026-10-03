@@ -19,10 +19,11 @@ export function makeAdminService({ adminRepository, adminLogRepository, otpServi
 
   // Step 2: verify OTP → issue tokens
   async function verifyLoginOtp(email, code, ipAddress) {
-    await otpService.verifyOtp(email, code);
-
     const admin = await adminRepository.findByEmail(email);
     if (!admin) throw new UnauthorizedError("Admin tidak ditemukan.");
+    if (!admin.phone) throw new ValidationError("Nomor HP admin belum diatur. Hubungi super admin.");
+
+    await otpService.verifyOtp(admin.phone, code);
 
     const accessToken = signAccessToken({ sub: admin.id, email: admin.email, role: admin.role });
     const refreshToken = uuidv4();

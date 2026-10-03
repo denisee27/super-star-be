@@ -1,12 +1,15 @@
 export function makeAdminRepository({ prisma }) {
   async function findByEmail(email) {
-    return prisma.admin.findUnique({ where: { email } });
+    return prisma.admin.findUnique({
+      where: { email },
+      select: { id: true, email: true, name: true, phone: true, role: true, password: true },
+    });
   }
 
   async function findById(id) {
     return prisma.admin.findUnique({
       where: { id },
-      select: { id: true, email: true, name: true, role: true, createdAt: true },
+      select: { id: true, email: true, name: true, phone: true, role: true, createdAt: true },
     });
   }
 
@@ -21,7 +24,7 @@ export function makeAdminRepository({ prisma }) {
     const [admins, total] = await Promise.all([
       prisma.admin.findMany({
         where,
-        select: { id: true, email: true, name: true, role: true, createdAt: true },
+        select: { id: true, email: true, name: true, phone: true, role: true, createdAt: true },
         orderBy: { createdAt: "asc" },
         skip: (page - 1) * limit,
         take: limit,
@@ -32,22 +35,23 @@ export function makeAdminRepository({ prisma }) {
     return { admins, total, page, limit, totalPages: Math.ceil(total / limit) || 1 };
   }
 
-  async function updateAdmin(id, { name, email, passwordHash }) {
+  async function updateAdmin(id, { name, email, phone, passwordHash }) {
     const data = {};
     if (name !== undefined) data.name = name;
     if (email !== undefined) data.email = email;
+    if (phone !== undefined) data.phone = phone;
     if (passwordHash !== undefined) data.password = passwordHash;
     return prisma.admin.update({
       where: { id },
       data,
-      select: { id: true, email: true, name: true, role: true, createdAt: true },
+      select: { id: true, email: true, name: true, phone: true, role: true, createdAt: true },
     });
   }
 
-  async function createAdmin({ email, name, passwordHash }) {
+  async function createAdmin({ email, name, phone, passwordHash }) {
     return prisma.admin.create({
-      data: { email, name, password: passwordHash, role: "ADMIN" },
-      select: { id: true, email: true, name: true, role: true, createdAt: true },
+      data: { email, name, phone: phone ?? null, password: passwordHash, role: "ADMIN" },
+      select: { id: true, email: true, name: true, phone: true, role: true, createdAt: true },
     });
   }
 

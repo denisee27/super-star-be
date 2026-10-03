@@ -8,15 +8,31 @@ export function makeSettingController({ settingService }) {
     }
   }
 
-  async function updateSettings(req, res, next) {
+  async function getPixelConfig(req, res, next) {
     try {
-      const { bdWaNumber, bdWaMessageTemplate } = req.body;
-      const result = await settingService.updateSettings({ bdWaNumber, bdWaMessageTemplate });
-      res.json({ success: true, data: result });
+      const config = await settingService.getPixelConfig();
+      res.json({ success: true, data: config });
     } catch (error) {
       next(error);
     }
   }
 
-  return { getBrandWaConfig, updateSettings };
+  async function updateSettings(req, res, next) {
+    try {
+      const { bdWaNumber, bdWaMessageTemplate, pixelTiktokMcn, pixelShopeeMcn, pixelBrandSeller } =
+        req.body;
+      await settingService.updateSettings({
+        bdWaNumber,
+        bdWaMessageTemplate,
+        pixelTiktokMcn,
+        pixelShopeeMcn,
+        pixelBrandSeller,
+      });
+      res.json({ success: true });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  return { getBrandWaConfig, getPixelConfig, updateSettings };
 }

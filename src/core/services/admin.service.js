@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
 import { signAccessToken } from "../../infra/security/jwt.js";
-import { UnauthorizedError, NotFoundError, ForbiddenError, ConflictError } from "../errors/httpErrors.js";
+import { UnauthorizedError, NotFoundError, ForbiddenError, ConflictError, ValidationError } from "../errors/httpErrors.js";
 
 const REFRESH_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -12,7 +12,8 @@ export function makeAdminService({ adminRepository, adminLogRepository, otpServi
     if (!admin) throw new UnauthorizedError("Email atau password salah.");
     const isValid = await bcrypt.compare(password, admin.password);
     if (!isValid) throw new UnauthorizedError("Email atau password salah.");
-    await otpService.sendOtp(email);
+    if (!admin.phone) throw new ValidationError("Nomor HP admin belum diatur. Hubungi super admin.");
+    await otpService.sendOtp(admin.phone);
     return { step: "otp" };
   }
 
@@ -77,7 +78,7 @@ export function makeAdminService({ adminRepository, adminLogRepository, otpServi
     });
   }
 
-  async function updateAdmin(id, { name, email }, actorId, ipAddress) {
+  async function updateAdmin(id, { name, email, phone }, actorId, ipAddress) {
     const admin = await adminRepository.findById(id);
     if (!admin) throw new NotFoundError("Admin tidak ditemukan.");
 
@@ -86,7 +87,7 @@ export function makeAdminService({ adminRepository, adminLogRepository, otpServi
       if (existing) throw new ConflictError("Email sudah digunakan.");
     }
 
-    const updated = await adminRepository.updateAdmin(id, { name, email });
+    const updated = await adminRepository.updateAdmin(id, { name, email, phone });
 
     adminLogRepository.create({
       adminId: actorId,
@@ -122,12 +123,12 @@ export function makeAdminService({ adminRepository, adminLogRepository, otpServi
     logger.info({ actorId, targetId: id }, "Admin password reset");
   }
 
-  async function createAdmin({ email, name, password }, actorId, ipAddress) {
+  async function createAdmin({ email, name, phone, password }, actorId, ipAddress) {
     const existing = await adminRepository.findByEmail(email);
     if (existing) throw new ConflictError("Email sudah terdaftar.");
 
     const passwordHash = await bcrypt.hash(password, 12);
-    const newAdmin = await adminRepository.createAdmin({ email, name, passwordHash });
+    const newAdmin = await adminRepository.createAdmin({ email, name, phone, passwordHash });
 
     adminLogRepository.create({
       adminId: actorId,

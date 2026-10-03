@@ -1,7 +1,7 @@
 import { sendWhatsappOtp } from "../../infra/whatsapp/botcakeService.js";
 import { ValidationError } from "../errors/httpErrors.js";
 
-const OTP_TTL_MS = 5 * 60 * 1000;   // 5 minutes
+const OTP_TTL_MS = 10 * 60 * 1000;  // 10 minutes
 const MAX_ATTEMPTS = 5;
 const RECENT_WINDOW_MS = 2 * 60 * 60 * 1000; // 2-hour rolling window for cooldown calculation
 

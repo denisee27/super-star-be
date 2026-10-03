@@ -98,6 +98,7 @@ model Admin {
   email         String         @unique
   password      String
   name          String
+  phone         String?
   role          AdminRole      @default(ADMIN)
   createdAt     DateTime       @default(now()) @map("created_at")
   refreshTokens RefreshToken[]
